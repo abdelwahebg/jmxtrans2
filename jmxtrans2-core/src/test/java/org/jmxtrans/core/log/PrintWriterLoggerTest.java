@@ -25,6 +25,7 @@ package org.jmxtrans.core.log;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
 
 import org.jmxtrans.utils.time.ManualClock;
 
@@ -46,6 +47,11 @@ import static org.jmxtrans.utils.io.Charsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrintWriterLoggerTest {
+
+    // To make the test valid in different timezones, only test the format of the date
+    // note that this will still fail for timezones which are not full hours of difference from UTC
+    // but let's assume that this is a corner case. We'll address that if the issue arises.
+    private static final Pattern DATE_TIME_PATTERN = compile(".*\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:16:40\\.000.*", DOTALL);
 
     private ManualClock clock = new ManualClock();
     private ByteArrayOutputStream byteArray;
@@ -123,7 +129,7 @@ public class PrintWriterLoggerTest {
                 .contains("testMessage")
                 .contains(DEBUG.toString())
                 .contains("testLogger")
-                .matches(compile(".*1970\\.01\\.01 ..:16:40\\.000.*", DOTALL)) // ignore hours to not test timezone
+                .matches(DATE_TIME_PATTERN)
                 .endsWith(lineSeparator());
     }
 
@@ -135,7 +141,7 @@ public class PrintWriterLoggerTest {
                 .contains("testMessage")
                 .contains(DEBUG.toString())
                 .contains("testLogger")
-                .matches(compile(".*1970\\.01\\.01 ..:16:40\\.000.*", DOTALL)) // ignore hours to not test timezone
+                .matches(DATE_TIME_PATTERN)
                 .contains("myException")
                 .endsWith(lineSeparator());
     }
