@@ -53,7 +53,7 @@ public class GraphiteOutputWriterTest {
         Map<String, String> settings = new HashMap<>();
         settings.put("port", "80");
         try {
-            new GraphiteOutputWriter.Factory().create(settings);
+            new GraphiteOutputWriterFactory().create(settings);
         } catch (IllegalArgumentException e) {
             assertThat(e).hasMessage("hostname can't be null");
             throw e;
@@ -65,7 +65,7 @@ public class GraphiteOutputWriterTest {
         Map<String, String> settings = new HashMap<>();
         settings.put("hostname", "localhost");
         try {
-            new GraphiteOutputWriter.Factory().create(settings);
+            new GraphiteOutputWriterFactory().create(settings);
         } catch (IllegalArgumentException e) {
             assertThat(e).hasMessage("No setting 'port' found");
             throw e;
@@ -77,7 +77,7 @@ public class GraphiteOutputWriterTest {
         Map<String, String> settings = new HashMap<>();
         settings.put("hostname", "localhost");
         settings.put("port", "1234");
-        OutputWriter outputWriter = new GraphiteOutputWriter.Factory().create(settings);
+        OutputWriter outputWriter = new GraphiteOutputWriterFactory().create(settings);
         
         assertThat(outputWriter).isNotNull();
     }

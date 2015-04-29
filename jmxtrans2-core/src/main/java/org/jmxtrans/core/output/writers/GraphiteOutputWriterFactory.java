@@ -22,32 +22,37 @@
  */
 package org.jmxtrans.core.output.writers;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.net.InetSocketAddress;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
 
-import org.jmxtrans.core.output.OutputWriter;
-import org.jmxtrans.core.output.support.WriterBasedOutputWriter;
-import org.jmxtrans.core.results.QueryResult;
+import org.jmxtrans.core.output.OutputWriterFactory;
+import org.jmxtrans.core.output.support.BatchingOutputWriter;
+import org.jmxtrans.core.output.support.TcpOutputWriter;
 
-@ThreadSafe
-public class ConsoleOutputWriter implements OutputWriter {
+import static org.jmxtrans.utils.ConfigurationUtils.getInt;
+import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
-    @Nonnull private final WriterBasedOutputWriter delegate;
-    @Nonnull private Writer writer;
-
-    public ConsoleOutputWriter(@Nonnull WriterBasedOutputWriter delegate, Writer writer) {
-        this.delegate = delegate;
-        this.writer = writer;
-    }
-
+public class GraphiteOutputWriterFactory implements OutputWriterFactory<BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>>> {
+    @Nonnull
     @Override
-    public int write(@Nonnull QueryResult result) throws IOException {
-        int resultsWritten = delegate.write(writer, result);
-        writer.flush();
-        return resultsWritten;
-    }
+    public BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>> create(@Nonnull Map<String, String> settings) {
 
+        String hostname = settings.get("hostname");
+        int port = getInt(settings, "port");
+        int socketTimeoutMillis = getInt(settings, "socketTimeoutMillis", 2000);
+        int batchSize = getInt(settings, "batchSize", 100);
+
+        InetSocketAddress server = new InetSocketAddress(hostname, port);
+
+        return new BatchingOutputWriter(
+                batchSize,
+                new TcpOutputWriter<>(
+                        server,
+                        socketTimeoutMillis,
+                        UTF_8,
+                        new GraphiteOutputWriter())
+        );
+    }
 }

@@ -37,7 +37,7 @@
     </servers>
 
     <outputWriters>
-        <outputWriter class="org.jmxtrans.core.config.DummyOutputWriter"/>
+        <outputWriter class="org.jmxtrans.core.config.DummyOutputWriter$Factory"/>
     </outputWriters>
 
 </jmxtrans>

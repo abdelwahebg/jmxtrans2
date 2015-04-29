@@ -189,6 +189,6 @@ public class LibratoWriterTest {
     @Test
     public void factoryCanCreateLibratoWriter() {
         Map<String, String> settings = new HashMap<>();
-        assertThat(new LibratoWriter.Factory().create(settings)).isNotNull();
+        assertThat(new LibratoWriterFactory().create(settings)).isNotNull();
     }
 }

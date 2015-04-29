@@ -46,8 +46,8 @@
     </invocations>
 
     <outputWriters>
-        <outputWriter class="org.jmxtrans.core.config.DummyOutputWriter"/>
-        <outputWriter class="org.jmxtrans.core.output.DevNullOutputWriter" unkownSetting="unused-value"/>
+        <outputWriter class="org.jmxtrans.core.config.DummyOutputWriter$Factory"/>
+        <outputWriter class="org.jmxtrans.core.output.DevNullOutputWriter$Factory" unkownSetting="unused-value"/>
     </outputWriters>
 
 </jmxtrans>

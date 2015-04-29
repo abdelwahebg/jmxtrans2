@@ -226,7 +226,7 @@ public class XmlConfigParser implements ConfigParser {
             throws InstantiationException, IllegalAccessException, MalformedObjectNameException {
         try {
             @SuppressWarnings("unchecked")
-            Class<OutputWriterFactory<?>> builderClass = (Class<OutputWriterFactory<?>>) Class.forName(outputWriterClass + "$Factory");
+            Class<OutputWriterFactory<?>> builderClass = (Class<OutputWriterFactory<?>>) Class.forName(outputWriterClass);
             OutputWriterFactory<?> builder = builderClass.newInstance();
             return wrapInMetricCollectingOutputWriter(
                     wrapInCircuitBreaker(
