@@ -22,52 +22,17 @@
  */
 package org.jmxtrans.utils.io;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import javax.annotation.Nonnull;
-
-import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
 public final class IoUtils {
 
     private static final int COPY_BUFFER_SIZE = 512;
 
     private IoUtils() {
-    }
-
-    /**
-     * Simple implementation without chunking if the source file is big.
-     *
-     * @param source
-     * @param destination
-     * @throws java.io.IOException
-     */
-    public static void doCopySmallFile(@Nonnull File source, @Nonnull File destination, boolean append) throws IOException {
-        if (destination.exists() && destination.isDirectory()) {
-            throw new IOException("Can not copy file, destination is a directory: " + destination.getAbsolutePath());
-        } else if (!destination.exists()) {
-            boolean renamed = source.renameTo(destination);
-            if (renamed) return;
-        }
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(destination, append);
-            if (append) {
-                fos.write("\n".getBytes(UTF_8));
-            }
-            fos.write(Files.readAllBytes(Paths.get(source.getAbsolutePath())));
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
     }
 
     public static void copy(@Nonnull InputStream in, @Nonnull OutputStream out) throws IOException {

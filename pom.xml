@@ -1172,6 +1172,32 @@
             </build>
         </profile>
 
+        <profile>
+            <!--
+                JDK 8 enables doclint by default, which is far too strict in my opinion. I much prefer concentrating
+                efforts on writing code clear enough to not require documentation and add documentation only in places
+                that deserve it. In particular, doclint complains about missing @param tags, the name of a parameter
+                should be sufficient documentation in itself. If that's not the case, we need to fix the name, not the
+                documentation.
+            -->
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>

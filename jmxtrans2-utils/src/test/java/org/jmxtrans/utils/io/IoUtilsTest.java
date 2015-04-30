@@ -22,19 +22,17 @@
  */
 package org.jmxtrans.utils.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.jmxtrans.utils.io.Charsets.UTF_8;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
 public class IoUtilsTest {
 
@@ -45,69 +43,6 @@ public class IoUtilsTest {
     @BeforeMethod
     public void setUp() throws Exception {
         testContentBytes = TEST_CONTENT.getBytes(UTF_8);
-    }
-
-    @Test(expectedExceptions = IOException.class)
-    public void cannotCopySmallFilesToDirectory() throws IOException {
-        File destination = dummyFiles.testDirectory();
-        try {
-            IoUtils.doCopySmallFile(dummyFiles.testFile(TEST_CONTENT), destination, false);
-        } catch (IOException ioe) {
-            assertThat(ioe).hasMessage("Can not copy file, destination is a directory: " + destination.getAbsolutePath());
-            throw ioe;
-        }
-    }
-
-    @Test(enabled = false, description = "Current implementation does not copy files, but move them when destination does not exist")
-    public void copyFileToNonExistingDestination() throws IOException {
-        File source = dummyFiles.testFile(TEST_CONTENT);
-        File destination = dummyFiles.nonExistingFile();
-        IoUtils.doCopySmallFile(source, destination, false);
-
-        assertThat(destination).exists();
-        assertThat(destination).hasContent(TEST_CONTENT);
-        // source should still exist
-        assertThat(source).exists();
-        assertThat(source).hasContent(TEST_CONTENT);
-    }
-
-    @Test
-    public void copyToEmptyFile() throws IOException {
-        File source = dummyFiles.testFile(TEST_CONTENT);
-        File destination = dummyFiles.testFile("");
-        IoUtils.doCopySmallFile(source, destination, false);
-
-        assertThat(destination).exists();
-        assertThat(destination).hasContent(TEST_CONTENT);
-        // source should still exist
-        assertThat(source).exists();
-        assertThat(source).hasContent(TEST_CONTENT);
-    }
-
-    @Test
-    public void copyToNonEmptyFile() throws IOException {
-        File source = dummyFiles.testFile(TEST_CONTENT);
-        File destination = dummyFiles.testFile("1234");
-        IoUtils.doCopySmallFile(source, destination, false);
-
-        assertThat(destination).exists();
-        assertThat(destination).hasContent(TEST_CONTENT);
-        // source should still exist
-        assertThat(source).exists();
-        assertThat(source).hasContent(TEST_CONTENT);
-    }
-
-    @Test
-    public void appendToExistingFile() throws IOException {
-        File source = dummyFiles.testFile(TEST_CONTENT);
-        File destination = dummyFiles.testFile(TEST_CONTENT);
-        IoUtils.doCopySmallFile(source, destination, true);
-
-        assertThat(destination).exists();
-        assertThat(destination).hasContent(TEST_CONTENT + "\n" + TEST_CONTENT);
-        // source should still exist
-        assertThat(source).exists();
-        assertThat(source).hasContent(TEST_CONTENT);
     }
 
     @Test
