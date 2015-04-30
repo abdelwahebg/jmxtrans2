@@ -36,10 +36,11 @@ public final class ConfigurationUtils {
 
     /**
      * Convert value of this setting to a Java <b>int</b>.
-     * <p/>
+     *
      * If the setting is not found or is not an int, an exception is thrown.
      *
-     * @param name name of the setting / property
+     * @param settings the map of settings
+     * @param name     name of the setting / property
      * @return int value of the setting / property
      * @throws IllegalArgumentException if setting is not found or is not an integer.
      */
@@ -54,9 +55,10 @@ public final class ConfigurationUtils {
 
     /**
      * Convert value of this setting to a Java <b>int</b>.
-     * <p/>
+     *
      * If the property is not found, the <code>defaultValue</code> is returned. If the property is not an int, an exception is thrown.
      *
+     * @param settings     the map of settings
      * @param name         name of the property
      * @param defaultValue default value if the property is not defined.
      * @return int value of the property or <code>defaultValue</code> if the property is not defined.
@@ -78,9 +80,10 @@ public final class ConfigurationUtils {
 
     /**
      * Convert value of this setting to a Java <b>long</b>.
-     * <p/>
+     *
      * If the property is not found, the <code>defaultValue</code> is returned. If the property is not a long, an exception is thrown.
      *
+     * @param settings     the map of settings
      * @param name         name of the property
      * @param defaultValue default value if the property is not defined.
      * @return int value of the property or <code>defaultValue</code> if the property is not defined.
@@ -102,9 +105,10 @@ public final class ConfigurationUtils {
 
     /**
      * Convert value of this setting to a Java <b>boolean</b> (via {@link Boolean#parseBoolean(String)}).
-     * <p/>
+     *
      * If the property is not found, the <code>defaultValue</code> is returned.
      *
+     * @param settings     the map of settings
      * @param name         name of the property
      * @param defaultValue default value if the property is not defined.
      * @return int value of the property or <code>defaultValue</code> if the property is not defined.
@@ -122,10 +126,11 @@ public final class ConfigurationUtils {
 
     /**
      * Convert value of this setting to a Java <b>int</b>.
-     * <p/>
+     *
      * If the setting is not found, an exception is thrown.
      *
-     * @param name name of the property
+     * @param settings the map of settings
+     * @param name     name of the property
      * @return value of the property
      * @throws IllegalArgumentException if setting is not found.
      */
@@ -139,9 +144,10 @@ public final class ConfigurationUtils {
 
     /**
      * Return the value of the given property.
-     * <p/>
+     *
      * If the property is not found, the <code>defaultValue</code> is returned.
      *
+     * @param settings     the map of settings
      * @param name         name of the property
      * @param defaultValue default value if the property is not defined.
      * @return value of the property or <code>defaultValue</code> if the property is not defined.
