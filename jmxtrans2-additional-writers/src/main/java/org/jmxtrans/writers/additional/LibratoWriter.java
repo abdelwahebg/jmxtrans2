@@ -24,12 +24,7 @@ package org.jmxtrans.writers.additional;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URL;
 import java.util.ArrayDeque;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -41,24 +36,14 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.jmxtrans.core.log.Logger;
 import org.jmxtrans.core.log.LoggerFactory;
-import org.jmxtrans.core.output.OutputWriterFactory;
-import org.jmxtrans.core.output.support.BatchingOutputWriter;
-import org.jmxtrans.core.output.support.HttpOutputWriter;
 import org.jmxtrans.core.output.support.OutputStreamBasedOutputWriter;
 import org.jmxtrans.core.results.QueryResult;
-import org.jmxtrans.utils.appinfo.AppInfo;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import static java.lang.String.format;
-import static java.net.Proxy.Type.HTTP;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.jmxtrans.core.output.support.HttpOutputWriter.builder;
-import static org.jmxtrans.utils.ConfigurationUtils.getInt;
-import static org.jmxtrans.utils.ConfigurationUtils.getString;
 
 import static com.fasterxml.jackson.core.JsonEncoding.UTF8;
 
@@ -184,60 +169,5 @@ public class LibratoWriter implements OutputStreamBasedOutputWriter {
             gauges.clear();
         }
     }
-    
-    @ThreadSafe
-    public static final class Factory implements OutputWriterFactory<BatchingOutputWriter<HttpOutputWriter<LibratoWriter>>> {
 
-        @Nonnull
-        @Override
-        public BatchingOutputWriter<HttpOutputWriter<LibratoWriter>> create(@Nonnull Map settings) {
-            int batchSize = getInt(settings, "batchSize", 100);
-            URL url = parseUrl(getString(settings, "libratoUrl", "https://metrics-api.librato.com/v1/metrics"));
-            int timeoutInMillis = getInt(settings, "timeoutInMillis", 1000);
-            Proxy proxy = getProxy(settings);
-            String source = "hostname"; // FIXME: correct handling of source should be implemented after #60 is done.
-            String username = getString(settings, "username", null);
-            String token = getString(settings, "token", null);
-            
-            HttpOutputWriter.Builder<LibratoWriter> httpOutputWriter =
-                    builder(url, loadAppInfo(), new LibratoWriter(new JsonFactory(), source))
-                            .withContentType("application/json; charset=utf-8")
-                            .withTimeout(timeoutInMillis, MILLISECONDS);
-            
-            if (username != null && !username.isEmpty()) {
-                httpOutputWriter.withAuthentication(username, token);
-            }
-            if (proxy != null) {
-                httpOutputWriter.withProxy(proxy);
-            }
-            
-            return new BatchingOutputWriter<>(batchSize, httpOutputWriter.build());
-        }
-
-        @Nullable
-        private Proxy getProxy(@Nonnull Map<String, String> settings) {
-            String proxyHost = getString(settings, "proxyHost", null);
-            Integer proxyPort = getInt(settings, "proxyPort", 0);
-            
-            if (proxyHost == null || proxyHost.isEmpty()) return null;
-            
-            return new Proxy(HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        }
-
-        private AppInfo loadAppInfo() {
-            try {
-                return AppInfo.load(LibratoWriter.class);
-            } catch (IOException e) {
-                throw new IllegalStateException("Could not load AppInfo", e);
-            }
-        }
-
-        private URL parseUrl(String urlString) {
-            try {
-                return new URL(urlString);
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException(format("Malformed Librato URL [%s]", urlString), e);
-            }
-        }
-    }
 }

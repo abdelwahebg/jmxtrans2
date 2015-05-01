@@ -49,7 +49,7 @@
                         <!-- LoggerFactory writes directly to StdOut if there are errors before the logging framework is initialized -->
                         <include class="org.jmxtrans.core.log.LoggerFactory" />
                         <!--  ConsoleOutputWriter writes to StdOut (as the name indicates) -->
-                        <include class="org.jmxtrans.core.output.writers.ConsoleOutputWriter$Factory" />
+                        <include class="org.jmxtrans.core.output.writers.ConsoleOutputWriterFactory" />
                     </from>
                 </allow>
             </deny>

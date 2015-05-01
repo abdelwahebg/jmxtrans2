@@ -22,32 +22,22 @@
  */
 package org.jmxtrans.core.output.writers;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStreamWriter;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
 
-import org.jmxtrans.core.output.OutputWriter;
-import org.jmxtrans.core.output.support.WriterBasedOutputWriter;
-import org.jmxtrans.core.results.QueryResult;
+import org.jmxtrans.core.output.OutputWriterFactory;
+import org.jmxtrans.core.output.support.MinimalFormatOutputWriter;
 
-@ThreadSafe
-public class ConsoleOutputWriter implements OutputWriter {
+import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
-    @Nonnull private final WriterBasedOutputWriter delegate;
-    @Nonnull private Writer writer;
-
-    public ConsoleOutputWriter(@Nonnull WriterBasedOutputWriter delegate, Writer writer) {
-        this.delegate = delegate;
-        this.writer = writer;
-    }
-
+public final class ConsoleOutputWriterFactory implements OutputWriterFactory<ConsoleOutputWriter> {
     @Override
-    public int write(@Nonnull QueryResult result) throws IOException {
-        int resultsWritten = delegate.write(writer, result);
-        writer.flush();
-        return resultsWritten;
+    @Nonnull
+    public ConsoleOutputWriter create(@Nonnull Map<String, String> settings) {
+        return new ConsoleOutputWriter(
+                new MinimalFormatOutputWriter(),
+                new OutputStreamWriter(System.out, UTF_8));
     }
-
 }

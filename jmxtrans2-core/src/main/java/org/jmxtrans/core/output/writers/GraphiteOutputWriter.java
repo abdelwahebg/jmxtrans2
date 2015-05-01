@@ -25,26 +25,18 @@ package org.jmxtrans.core.output.writers;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.jmxtrans.core.output.OutputWriterFactory;
-import org.jmxtrans.core.output.support.BatchingOutputWriter;
-import org.jmxtrans.core.output.support.TcpOutputWriter;
 import org.jmxtrans.core.output.support.WriterBasedOutputWriter;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.VisibleForTesting;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.jmxtrans.utils.ConfigurationUtils.getInt;
-import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
 @ThreadSafe
 public class GraphiteOutputWriter implements WriterBasedOutputWriter {
@@ -82,29 +74,6 @@ public class GraphiteOutputWriter implements WriterBasedOutputWriter {
             return InetAddress.getLocalHost().getHostName().replaceAll("\\.", "_");
         } catch (UnknownHostException e) {
             return  "#unknown#";
-        }
-    }
-
-    public static class Factory implements OutputWriterFactory<BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>>> {
-        @Nonnull
-        @Override
-        public BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>> create(@Nonnull Map<String, String> settings) {
-
-            String hostname = settings.get("hostname");
-            int port = getInt(settings, "port");
-            int socketTimeoutMillis = getInt(settings, "socketTimeoutMillis", 2000);
-            int batchSize = getInt(settings, "batchSize", 100);
-
-            InetSocketAddress server = new InetSocketAddress(hostname, port);
-
-            return new BatchingOutputWriter(
-                    batchSize,
-                    new TcpOutputWriter<>(
-                            server,
-                            socketTimeoutMillis,
-                            UTF_8,
-                            new GraphiteOutputWriter())
-            );
         }
     }
 

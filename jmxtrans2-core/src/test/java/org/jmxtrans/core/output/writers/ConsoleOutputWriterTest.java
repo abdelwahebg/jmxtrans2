@@ -52,7 +52,7 @@ public class ConsoleOutputWriterTest {
     @Test
     public void factoryCreatesConsoleWriter() {
         Map<String, String> settings = emptyMap();
-        ConsoleOutputWriter consoleOutputWriter = new ConsoleOutputWriter.Factory().create(settings);
+        ConsoleOutputWriter consoleOutputWriter = new ConsoleOutputWriterFactory().create(settings);
         
         assertThat(consoleOutputWriter).isNotNull();
     }

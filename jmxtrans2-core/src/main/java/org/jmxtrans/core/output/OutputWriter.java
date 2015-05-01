@@ -30,12 +30,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.jmxtrans.core.results.QueryResult;
 
-/**
- * By convention an {@link OutputWriter} must have a static inner class of type
- * {@link OutputWriterFactory} called {@code Factory}.
- *
- * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
- */
 @ThreadSafe
 public interface OutputWriter {
 
