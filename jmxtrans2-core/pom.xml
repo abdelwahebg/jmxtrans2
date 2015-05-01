@@ -40,7 +40,7 @@
     <properties>
         <verify.classLineRate>0.40</verify.classLineRate>
         <verify.mutation.threshold>56</verify.mutation.threshold>
-        <verify.packageBranchRate>0.41</verify.packageBranchRate>
+        <verify.packageBranchRate>0.39</verify.packageBranchRate>
     </properties>
 
     <dependencies>
