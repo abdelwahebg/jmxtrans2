@@ -22,9 +22,9 @@
  */
 package org.jmxtrans.utils;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,13 +33,16 @@ public class ConfigurationUtilsTest {
 
     @Test
     public void validIntegerIsParsed() {
-        Map<String, String> settings = ImmutableMap.of("integerKey", "1");
+
+        Map<String, String> settings = new HashMap<>();
+        settings.put("integerKey", "1");
         assertThat(ConfigurationUtils.getInt(settings, "integerKey")).isEqualTo(1);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'integerKey=hello' is not an integer.*")
     public void invalidIntegerThrowsException() {
-        Map<String, String> settings = ImmutableMap.of("integerKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("integerKey", "hello");
         try {
             ConfigurationUtils.getInt(settings, "integerKey");
         } catch (IllegalArgumentException e) {
@@ -53,7 +56,7 @@ public class ConfigurationUtilsTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void nonExistingIntegerThrowsException() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         try {
             ConfigurationUtils.getInt(settings, "integerKey");
         } catch (IllegalArgumentException e) {
@@ -66,13 +69,15 @@ public class ConfigurationUtilsTest {
 
     @Test
     public void validIntegerWithDefaultValueIsParsed() {
-        Map<String, String> settings = ImmutableMap.of("integerKey", "1");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("integerKey", "1");
         assertThat(ConfigurationUtils.getInt(settings, "integerKey", 2)).isEqualTo(1);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void invalidIntegerWithDefaultValueThrowsException() {
-        Map<String, String> settings = ImmutableMap.of("integerKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("integerKey", "hello");
         try {
             ConfigurationUtils.getInt(settings, "integerKey", 1);
         } catch (IllegalArgumentException e) {
@@ -86,19 +91,21 @@ public class ConfigurationUtilsTest {
 
     @Test
     public void nonExistingIntegerReturnsDefaultValue() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         assertThat(ConfigurationUtils.getInt(settings, "integerKey", 1)).isEqualTo(1);
     }
 
     @Test
     public void validLongWithDefaultValueIsParsed() {
-        Map<String, String> settings = ImmutableMap.of("longKey", "1");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("longKey", "1");
         assertThat(ConfigurationUtils.getLong(settings, "longKey", 2L)).isEqualTo(1L);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void invalidLongWithDefaultValueThrowsException() {
-        Map<String, String> settings = ImmutableMap.of("longKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("longKey", "hello");
         try {
             ConfigurationUtils.getLong(settings, "longKey", 1L);
         } catch (IllegalArgumentException e) {
@@ -112,37 +119,40 @@ public class ConfigurationUtilsTest {
 
     @Test
     public void nonExistingLongReturnsDefaultValue() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         assertThat(ConfigurationUtils.getLong(settings, "longKey", 1L)).isEqualTo(1L);
     }
 
     @Test
     public void validBooleanWithDefaultValueIsParsed() {
-        Map<String, String> settings = ImmutableMap.of("booleanKey", "true");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("booleanKey", "true");
         assertThat(ConfigurationUtils.getBoolean(settings, "booleanKey", false)).isEqualTo(true);
     }
 
     @Test
     public void invalidBooleanWithDefaultValueReturnsFalse() {
-        Map<String, String> settings = ImmutableMap.of("booleanKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("booleanKey", "hello");
         assertThat(ConfigurationUtils.getBoolean(settings, "booleanKey", true)).isEqualTo(false);
     }
 
     @Test
     public void nonExistingBooleanReturnsDefaultValue() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         assertThat(ConfigurationUtils.getBoolean(settings, "booleanKey", true)).isEqualTo(true);
     }
 
     @Test
     public void existingStringIsFound() {
-        Map<String, String> settings = ImmutableMap.of("stringKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("stringKey", "hello");
         assertThat(ConfigurationUtils.getString(settings, "stringKey")).isEqualTo("hello");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void nonExistingStringThrowsException() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         try {
             ConfigurationUtils.getString(settings, "stringKey");
         } catch (IllegalArgumentException e) {
@@ -155,13 +165,14 @@ public class ConfigurationUtilsTest {
 
     @Test
     public void existingStringWithDefaultValueIsFound() {
-        Map<String, String> settings = ImmutableMap.of("stringKey", "hello");
+        Map<String, String> settings = new HashMap<>();
+        settings.put("stringKey", "hello");
         assertThat(ConfigurationUtils.getString(settings, "stringKey", "default")).isEqualTo("hello");
     }
 
     @Test
     public void nonExistingStringWithDefaultValueReturnsDefaultValue() {
-        Map<String, String> settings = ImmutableMap.of();
+        Map<String, String> settings = new HashMap<>();
         assertThat(ConfigurationUtils.getString(settings, "stringKey", "default")).isEqualTo("default");
     }
 
