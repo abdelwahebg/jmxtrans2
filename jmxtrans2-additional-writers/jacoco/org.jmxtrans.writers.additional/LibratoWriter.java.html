@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LibratoWriter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMXTrans - additional writers</a> &gt; <a href="index.source.html" class="el_package">org.jmxtrans.writers.additional</a> &gt; <span class="el_source">LibratoWriter.java</span></div><h1>LibratoWriter.java</h1><pre class="source lang-java linenums">/**
+ * The MIT License
+ * Copyright (c) 2014 JMXTrans Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.jmxtrans.writers.additional;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
+
+import org.jmxtrans.core.log.Logger;
+import org.jmxtrans.core.log.LoggerFactory;
+import org.jmxtrans.core.output.support.OutputStreamBasedOutputWriter;
+import org.jmxtrans.core.results.QueryResult;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import static com.fasterxml.jackson.core.JsonEncoding.UTF8;
+
+@ThreadSafe
+public class LibratoWriter implements OutputStreamBasedOutputWriter {
+
+<span class="fc" id="L52">    @Nonnull private final Logger logger = LoggerFactory.getLogger(getClass().getName());</span>
+
+<span class="fc" id="L54">    @Nonnull private final ThreadLocal&lt;ResultsClassifier&gt; resultsClassifier = new ThreadLocal&lt;ResultsClassifier&gt;() {</span>
+        @Override
+        protected ResultsClassifier initialValue() {
+<span class="fc" id="L57">            return new ResultsClassifier();</span>
+        }
+    };
+    @Nonnull private final JsonFactory jsonFactory;
+    @Nonnull private final String source;
+
+<span class="fc" id="L63">    public LibratoWriter(@Nonnull JsonFactory jsonFactory, @Nonnull String source) {</span>
+<span class="fc" id="L64">        this.jsonFactory = jsonFactory;</span>
+<span class="fc" id="L65">        this.source = source;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public void beforeBatch(@Nonnull OutputStream out) throws IOException {
+<span class="fc" id="L70">        resultsClassifier.get().clear();</span>
+<span class="fc" id="L71">    }</span>
+
+    @Override
+    public int write(@Nonnull OutputStream out, @Nonnull QueryResult result) throws IOException {
+<span class="fc" id="L75">        resultsClassifier.get().addResult(result);</span>
+<span class="fc" id="L76">        return 0;</span>
+    }
+
+    @Override
+    public int afterBatch(@Nonnull OutputStream out) throws IOException {
+<span class="pc" id="L81">        try(JsonGenerator jsonGenerator = jsonFactory.createGenerator(out, UTF8)) {</span>
+<span class="fc" id="L82">            int resultsWritten = 0;</span>
+<span class="fc" id="L83">            jsonGenerator.writeStartObject();</span>
+<span class="fc" id="L84">            resultsWritten += writeResultsAs(&quot;counters&quot;, jsonGenerator, resultsClassifier.get().getCounters());</span>
+<span class="fc" id="L85">            resultsWritten += writeResultsAs(&quot;gauges&quot;, jsonGenerator, resultsClassifier.get().getGauges());</span>
+<span class="fc" id="L86">            jsonGenerator.writeEndObject();</span>
+<span class="fc" id="L87">            jsonGenerator.flush();</span>
+<span class="fc" id="L88">            return resultsWritten;</span>
+<span class="pc bpc" id="L89" title="6 of 8 branches missed.">        } finally {</span>
+<span class="pc" id="L90">            resultsClassifier.remove();</span>
+        }
+    }
+
+    private int writeResultsAs(String name, JsonGenerator jsonGenerator, Iterable&lt;QueryResult&gt; results) throws IOException {
+<span class="fc" id="L95">        int counter = 0;</span>
+<span class="fc" id="L96">        jsonGenerator.writeArrayFieldStart(name);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (QueryResult result : results) {</span>
+<span class="fc" id="L98">            jsonGenerator.writeStartObject();</span>
+            
+<span class="fc" id="L100">            jsonGenerator.writeStringField(&quot;name&quot;, result.getName());</span>
+<span class="fc" id="L101">            jsonGenerator.writeStringField(&quot;source&quot;, source);</span>
+<span class="fc" id="L102">            jsonGenerator.writeNumberField(&quot;measure_time&quot;, result.getEpoch(SECONDS));</span>
+            
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (result.getValue() instanceof Number) {</span>
+<span class="fc" id="L105">                writeNumberField(jsonGenerator, &quot;value&quot;, (Number)result.getValue());</span>
+            } else {
+<span class="fc" id="L107">                logger.info(format(&quot;Value for result [%s] is not a number, cannot send it to Librato&quot;, result));</span>
+            }
+            
+<span class="fc" id="L110">            jsonGenerator.writeEndObject();</span>
+<span class="fc" id="L111">            counter++;</span>
+<span class="fc" id="L112">        }</span>
+<span class="fc" id="L113">        jsonGenerator.writeEndArray();</span>
+<span class="fc" id="L114">        return counter;</span>
+    }
+
+    private void writeNumberField(JsonGenerator jsonGenerator, String name, Number value) throws IOException {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (value instanceof Integer) {</span>
+<span class="fc" id="L119">            jsonGenerator.writeNumberField(name, (Integer)value);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        } else if (value instanceof Long) {</span>
+<span class="fc" id="L121">            jsonGenerator.writeNumberField(name, (Long)value);</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        } else if (value instanceof Float) {</span>
+<span class="fc" id="L123">            jsonGenerator.writeNumberField(name, (Float)value);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        } else if (value instanceof Double) {</span>
+<span class="fc" id="L125">            jsonGenerator.writeNumberField(name, (Double)value);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        } else if (value instanceof AtomicInteger) {</span>
+<span class="fc" id="L127">            jsonGenerator.writeNumberField(name, ((AtomicInteger)value).get());</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        } else if (value instanceof AtomicLong) {</span>
+<span class="fc" id="L129">            jsonGenerator.writeNumberField(name, ((AtomicLong) value).get());</span>
+        }
+<span class="fc" id="L131">    }</span>
+
+    @NotThreadSafe
+<span class="fc" id="L134">    private static final class ResultsClassifier {</span>
+<span class="fc" id="L135">        @Nonnull private final Logger logger = LoggerFactory.getLogger(getClass().getName());</span>
+        
+<span class="fc" id="L137">        @Nonnull private final Queue&lt;QueryResult&gt; counters = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L138">        @Nonnull private final Queue&lt;QueryResult&gt; gauges = new ArrayDeque&lt;&gt;();</span>
+
+        public void addResult(@Nonnull QueryResult result) {
+<span class="pc bpc" id="L141" title="1 of 4 branches missed.">            switch (result.getType()) {</span>
+                case COUNTER:
+                case TIMER:
+                case SUMMARY:
+<span class="fc" id="L145">                    counters.add(result);</span>
+<span class="fc" id="L146">                    break;</span>
+                case GAUGE:
+<span class="fc" id="L148">                    gauges.add(result);</span>
+<span class="fc" id="L149">                    break;</span>
+                case UNKNOWN:
+<span class="fc" id="L151">                    logger.info(format(&quot;Unspecified type for result [%s], export it as counter&quot;, result));</span>
+<span class="fc" id="L152">                    counters.add(result);</span>
+                    break;
+            }
+<span class="fc" id="L155">        }</span>
+        
+        public Iterable&lt;QueryResult&gt; getCounters() {
+<span class="fc" id="L158">            return counters;</span>
+        }
+        
+        public Iterable&lt;QueryResult&gt; getGauges() {
+<span class="fc" id="L162">            return gauges;</span>
+        }
+        
+        public void clear() {
+<span class="fc" id="L166">            counters.clear();</span>
+<span class="fc" id="L167">            gauges.clear();</span>
+<span class="fc" id="L168">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>
