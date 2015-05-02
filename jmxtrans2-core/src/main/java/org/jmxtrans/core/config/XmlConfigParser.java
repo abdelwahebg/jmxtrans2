@@ -65,6 +65,7 @@ import org.jmxtrans.core.query.Invocation;
 import org.jmxtrans.core.query.Query;
 import org.jmxtrans.core.query.QueryAttribute;
 import org.jmxtrans.core.query.RemoteServer;
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.utils.io.Resource;
 import org.jmxtrans.utils.io.StandardResource;
 import org.jmxtrans.utils.time.Clock;
@@ -78,6 +79,8 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI;
+
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
 
 @ThreadSafe
 public class XmlConfigParser implements ConfigParser {
@@ -181,7 +184,7 @@ public class XmlConfigParser implements ConfigParser {
                 QueryAttribute.Builder attributeBuilder = QueryAttribute
                         .builder(attribute.getName())
                         .withResultAlias(attribute.getResultAlias())
-                        .withType(attribute.getType());
+                        .withType(parseMetricType(attribute.getType()));
                 for (String key : attribute.getKey()) {
                     attributeBuilder.addKey(key);
                 }
@@ -190,6 +193,12 @@ public class XmlConfigParser implements ConfigParser {
             result.add(queryBuilder.build());
         }
         return result;
+    }
+
+    private MetricType parseMetricType(String type) {
+        if (type == null) return UNKNOWN;
+        if (type.isEmpty()) return UNKNOWN;
+        return MetricType.valueOf(type.toUpperCase());
     }
 
     private void parse(@Nonnull Jmxtrans.Invocations invocations, @Nonnull ModifiableConfiguration configuration) throws MalformedObjectNameException {
@@ -207,7 +216,9 @@ public class XmlConfigParser implements ConfigParser {
                             invocation.getOperationName(),
                             params.toArray(),
                             signature.toArray(new String[0]),
-                            invocation.getResultAlias(), new SystemClock()));
+                            invocation.getResultAlias(),
+                            parseMetricType(invocation.getType()),
+                            new SystemClock()));
         }
     }
 

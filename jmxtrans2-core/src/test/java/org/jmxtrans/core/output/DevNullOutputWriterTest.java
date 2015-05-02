@@ -25,6 +25,7 @@ package org.jmxtrans.core.output;
 import java.io.IOException;
 import java.util.Map;
 
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.core.results.QueryResult;
 
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ public class DevNullOutputWriterTest {
     @Test
     public void writingResultsDoesNothing() throws IOException {
         OutputWriter outputWriter = new DevNullOutputWriter();
-        QueryResult result = new QueryResult("name", "value", 0);
+        QueryResult result = new QueryResult("name", MetricType.UNKNOWN, "value", 0);
 
         int processedMetricCount = outputWriter.write(result);
         assertThat(processedMetricCount).isZero();

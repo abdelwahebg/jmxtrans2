@@ -25,6 +25,7 @@ package org.jmxtrans.core.output.support;
 import java.io.IOException;
 
 import org.jmxtrans.core.output.OutputWriter;
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.mockito.MockitoTestNGListener;
 
@@ -97,11 +98,11 @@ public class BatchingOutputWriterTest {
     public void resultsAreProcessedInOrder() throws IOException {
         InOrder inOrder = inOrder(targetOutputWriter);
 
-        QueryResult result1 = new QueryResult("my.result", 1, 1);
-        QueryResult result2 = new QueryResult("my.result", 1, 2);
-        QueryResult result3 = new QueryResult("my.result", 1, 3);
-        QueryResult result4 = new QueryResult("my.result", 1, 4);
-        QueryResult result5 = new QueryResult("my.result", 1, 5);
+        QueryResult result1 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 1);
+        QueryResult result2 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 2);
+        QueryResult result3 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 3);
+        QueryResult result4 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 4);
+        QueryResult result5 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 5);
 
         OutputWriter batchingOutputWriter = new BatchingOutputWriter(4, targetOutputWriter);
         batchingOutputWriter.write(result4);

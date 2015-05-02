@@ -25,6 +25,7 @@ package org.jmxtrans.core.output.support;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.core.results.QueryResult;
 
 import org.testng.annotations.Test;
@@ -35,7 +36,7 @@ public class MinimalFormatOutputWriterTest {
 
     @Test
     public void correctFormatIsWritten() throws IOException {
-        QueryResult result = new QueryResult("metric.name", 123, 456);
+        QueryResult result = new QueryResult("metric.name", MetricType.UNKNOWN, 123, 456);
         StringWriter output = new StringWriter();
         new MinimalFormatOutputWriter().write(output, result);
         

@@ -128,6 +128,7 @@
         <xs:attribute name="objectName" type="xs:string" use="required"/>
         <xs:attribute name="operationName" type="xs:string" use="required"/>
         <xs:attribute name="resultAlias" type="xs:string"/>
+        <xs:attribute name="type" type="xs:string" default="unknown"/>
         <xs:attribute name="maxResults" type="xs:int" default="50"/>
     </xs:complexType>
 

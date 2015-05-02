@@ -22,11 +22,13 @@
  */
 package org.jmxtrans.core.results;
 
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 public final class QueryResultFixtures {
     private QueryResultFixtures(){};
     
     public static QueryResult standardQueryResult() {
-        return new QueryResult("some.value", 2, 3000);
+        return new QueryResult("some.value", UNKNOWN, 2, 3000);
     }
     
     public static String standardQueryResultMinimallyFormatted() {

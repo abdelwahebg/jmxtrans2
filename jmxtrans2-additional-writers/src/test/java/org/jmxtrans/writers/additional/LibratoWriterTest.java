@@ -38,6 +38,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static org.jmxtrans.core.results.MetricType.COUNTER;
+import static org.jmxtrans.core.results.MetricType.GAUGE;
+import static org.jmxtrans.core.results.MetricType.SUMMARY;
+import static org.jmxtrans.core.results.MetricType.TIMER;
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LibratoWriterTest {
@@ -48,8 +54,9 @@ public class LibratoWriterTest {
     private QueryResult counterResult2;
     private QueryResult gaugeResult1;
     private QueryResult gaugeResult2;
+    private QueryResult timerResult;
+    private QueryResult summaryResult;
     private QueryResult unkownType;
-    private QueryResult noType;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -65,12 +72,13 @@ public class LibratoWriterTest {
 
     @BeforeClass
     public void createResults() {
-        counterResult1 = new QueryResult("counter1", "counter", 1, 1000L);
-        counterResult2 = new QueryResult("counter2", "counter", 2L, 2000L);
-        gaugeResult1 = new QueryResult("gauge1", "gauge", 3.3, 3000L);
-        gaugeResult2 = new QueryResult("gauge2", "gauge", 4.4f, 4000L);
-        unkownType = new QueryResult("unkownType", "unkownType", 5, 5000L);
-        noType = new QueryResult("noType", null, 6, 6000L);
+        counterResult1 = new QueryResult("counter1", COUNTER, 1, 1000L);
+        counterResult2 = new QueryResult("counter2", COUNTER, 2L, 2000L);
+        gaugeResult1 = new QueryResult("gauge1", GAUGE, 3.3, 3000L);
+        gaugeResult2 = new QueryResult("gauge2", GAUGE, 4.4f, 4000L);
+        timerResult = new QueryResult("timer", TIMER, 4.4f, 4000L);
+        summaryResult = new QueryResult("summary", SUMMARY, 4.4f, 4000L);
+        unkownType = new QueryResult("unkownType", UNKNOWN, 5, 5000L);
     }
 
     @Test
@@ -129,7 +137,7 @@ public class LibratoWriterTest {
     @Test
     public void nonNumericValuesAreSentEmpty() throws IOException {
         libratoWriter.beforeBatch(out);
-        libratoWriter.write(out, new QueryResult("nonNumeric", "counter", "stringValue", 1000));
+        libratoWriter.write(out, new QueryResult("nonNumeric", COUNTER, "stringValue", 1000));
         libratoWriter.afterBatch(out);
 
         JsonNode tree = objectMapper.readTree(out.toByteArray());
@@ -145,7 +153,7 @@ public class LibratoWriterTest {
     @Test
     public void atomicIntegerAreSentAsNumbers() throws IOException {
         libratoWriter.beforeBatch(out);
-        libratoWriter.write(out, new QueryResult("atomicInteger", "counter", new AtomicInteger(1), 1000));
+        libratoWriter.write(out, new QueryResult("atomicInteger", COUNTER, new AtomicInteger(1), 1000));
         libratoWriter.afterBatch(out);
 
         JsonNode tree = objectMapper.readTree(out.toByteArray());
@@ -161,7 +169,7 @@ public class LibratoWriterTest {
     @Test
     public void atomicLongAreSentAsNumbers() throws IOException {
         libratoWriter.beforeBatch(out);
-        libratoWriter.write(out, new QueryResult("atomicLong", "counter", new AtomicLong(2), 1000));
+        libratoWriter.write(out, new QueryResult("atomicLong", COUNTER, new AtomicLong(2), 1000));
         libratoWriter.afterBatch(out);
 
         JsonNode tree = objectMapper.readTree(out.toByteArray());
@@ -173,12 +181,23 @@ public class LibratoWriterTest {
         assertThat(counter1.get("name").textValue()).isEqualTo("atomicLong");
         assertThat(counter1.get("value").longValue()).isEqualTo(2);
     }
-    
+
     @Test
-    public void nullAndUnknownTypesAreTreatedAsCounters() throws IOException {
+    public void unknownTypeIsTreatedAsCounter() throws IOException {
         libratoWriter.beforeBatch(out);
         libratoWriter.write(out, unkownType);
-        libratoWriter.write(out, noType);
+        libratoWriter.afterBatch(out);
+
+        JsonNode tree = objectMapper.readTree(out.toByteArray());
+        JsonNode counters = tree.findPath("counters");
+        assertThat(counters.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void timerAndSummaryTypesAreTreatedAsCounters() throws IOException {
+        libratoWriter.beforeBatch(out);
+        libratoWriter.write(out, timerResult);
+        libratoWriter.write(out, summaryResult);
         libratoWriter.afterBatch(out);
 
         JsonNode tree = objectMapper.readTree(out.toByteArray());

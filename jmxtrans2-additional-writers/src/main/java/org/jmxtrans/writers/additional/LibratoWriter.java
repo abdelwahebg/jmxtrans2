@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -59,9 +58,9 @@ public class LibratoWriter implements OutputStreamBasedOutputWriter {
         }
     };
     @Nonnull private final JsonFactory jsonFactory;
-    @Nullable private final String source;
+    @Nonnull private final String source;
 
-    public LibratoWriter(@Nonnull JsonFactory jsonFactory, @Nullable String source) {
+    public LibratoWriter(@Nonnull JsonFactory jsonFactory, @Nonnull String source) {
         this.jsonFactory = jsonFactory;
         this.source = source;
     }
@@ -99,11 +98,7 @@ public class LibratoWriter implements OutputStreamBasedOutputWriter {
             jsonGenerator.writeStartObject();
             
             jsonGenerator.writeStringField("name", result.getName());
-            
-            if (source != null && !source.isEmpty()) {
-                jsonGenerator.writeStringField("source", source);
-            }
-            
+            jsonGenerator.writeStringField("source", source);
             jsonGenerator.writeNumberField("measure_time", result.getEpoch(SECONDS));
             
             if (result.getValue() instanceof Number) {
@@ -143,16 +138,19 @@ public class LibratoWriter implements OutputStreamBasedOutputWriter {
         @Nonnull private final Queue<QueryResult> gauges = new ArrayDeque<>();
 
         public void addResult(@Nonnull QueryResult result) {
-            if ("counter".equals(result.getType())) {
-                counters.add(result);
-            } else if ("gauge".equals(result.getType())) {
-                gauges.add(result);
-            } else if (result.getType() == null) {
-                logger.info(format("Unspecified type for result [%s], export it as counter", result));
-                counters.add(result);
-            } else {
-                logger.info(format("Unsupported metric type [%s] for result [%s], export it as counter", result.getType(), result));
-                counters.add(result);
+            switch (result.getType()) {
+                case COUNTER:
+                case TIMER:
+                case SUMMARY:
+                    counters.add(result);
+                    break;
+                case GAUGE:
+                    gauges.add(result);
+                    break;
+                case UNKNOWN:
+                    logger.info(format("Unspecified type for result [%s], export it as counter", result));
+                    counters.add(result);
+                    break;
             }
         }
         

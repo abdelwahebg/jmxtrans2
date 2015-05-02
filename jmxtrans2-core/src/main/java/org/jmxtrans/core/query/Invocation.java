@@ -33,6 +33,7 @@ import javax.management.ObjectName;
 
 import org.jmxtrans.core.log.Logger;
 import org.jmxtrans.core.log.LoggerFactory;
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.time.Clock;
 
@@ -53,6 +54,7 @@ public class Invocation {
     @Nonnull private final String resultAlias;
     @Nonnull private final Object[] params;
     @Nonnull private final String[] signature;
+    @Nonnull private final MetricType type;
     @Nonnull private final Clock clock;
 
     public Invocation(
@@ -61,12 +63,14 @@ public class Invocation {
             @Nonnull Object[] params,
             @Nonnull String[] signature,
             @Nonnull String resultAlias,
+            @Nonnull MetricType type,
             @Nonnull Clock clock) {
         this.objectName = objectName;
         this.operationName = operationName;
         this.params = params.clone();
         this.signature = signature.clone();
         this.resultAlias = resultAlias;
+        this.type = type;
         this.clock = clock;
     }
 
@@ -75,7 +79,7 @@ public class Invocation {
         for (ObjectName on : objectNames) {
             try {
                 Object result = mbeanServer.invoke(on, operationName, params, signature);
-                resultQueue.add(new QueryResult(resultAlias, result, clock.currentTimeMillis()));
+                resultQueue.add(new QueryResult(resultAlias, type, result, clock.currentTimeMillis()));
             } catch (Exception e) {
                 logger.warn("Exception invoking " + on + "#" + operationName + "(" + Arrays.toString(params) + ")", e);
             }

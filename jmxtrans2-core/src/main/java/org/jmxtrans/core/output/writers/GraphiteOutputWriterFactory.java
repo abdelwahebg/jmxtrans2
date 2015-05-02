@@ -46,7 +46,7 @@ public class GraphiteOutputWriterFactory implements OutputWriterFactory<Batching
 
         InetSocketAddress server = new InetSocketAddress(hostname, port);
 
-        return new BatchingOutputWriter(
+        return new BatchingOutputWriter<>(
                 batchSize,
                 new TcpOutputWriter<>(
                         server,
