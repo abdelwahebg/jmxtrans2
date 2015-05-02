@@ -34,6 +34,7 @@ import javax.management.openmbean.CompositeData;
 
 import org.jmxtrans.core.log.Logger;
 import org.jmxtrans.core.log.LoggerFactory;
+import org.jmxtrans.core.results.MetricType;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.Preconditions2;
 import org.jmxtrans.utils.time.Clock;
@@ -44,6 +45,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import static java.lang.String.format;
+
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
 
 /**
  * Describe a JMX MBean attribute to collect and hold the attribute collection logic.
@@ -81,7 +84,7 @@ public class QueryAttribute {
      *
      * @see org.jmxtrans.core.results.QueryResult#getName()
      */
-    @Nullable @Getter private final String type;
+    @Nullable @Getter private final MetricType type;
 
     /**
      * <code>null</code> if no 'key' as been defined in the config.
@@ -103,7 +106,7 @@ public class QueryAttribute {
      */
     private QueryAttribute(
             @Nonnull String name,
-            @Nullable String type,
+            @Nullable MetricType type,
             @Nullable String resultAlias,
             @Nullable Set<String> keys,
             @Nonnull Clock clock) {
@@ -192,8 +195,8 @@ public class QueryAttribute {
     public static final class Builder {
         @Nonnull
         private String name;
-        @Nullable
-        private String type;
+        @Nonnull
+        private MetricType type = UNKNOWN;
         @Nullable
         private String resultAlias;
         @Nullable
@@ -208,7 +211,7 @@ public class QueryAttribute {
             return this;
         }
 
-        public Builder withType(@Nullable String type) {
+        public Builder withType(@Nonnull MetricType type) {
             this.type = type;
             return this;
         }

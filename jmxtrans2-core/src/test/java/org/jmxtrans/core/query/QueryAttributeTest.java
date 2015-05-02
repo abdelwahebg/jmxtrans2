@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import static org.jmxtrans.core.query.QueryAttribute.builder;
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,10 +68,10 @@ public class QueryAttributeTest {
     @Test
     public void queryAttributeWithSameNameAndTypeAreEquals() {
         QueryAttribute attribute1 = builder("java.lang:type=OperatingSystem")
-                .withType("type")
+                .withType(UNKNOWN)
                 .build();
         QueryAttribute attribute2 = builder("java.lang:type=OperatingSystem")
-                .withType("type")
+                .withType(UNKNOWN)
                 .build();
 
         assertThat(attribute1).isEqualTo(attribute2);

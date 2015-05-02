@@ -53,7 +53,7 @@ public final class LibratoWriterFactory implements OutputWriterFactory<BatchingO
 
     @Nonnull
     @Override
-    public BatchingOutputWriter<HttpOutputWriter<LibratoWriter>> create(@Nonnull Map settings) {
+    public BatchingOutputWriter<HttpOutputWriter<LibratoWriter>> create(@Nonnull Map<String, String> settings) {
         int batchSize = getInt(settings, "batchSize", 100);
         URL url = parseUrl(getString(settings, "libratoUrl", "https://metrics-api.librato.com/v1/metrics"));
         int timeoutInMillis = getInt(settings, "timeoutInMillis", 1000);

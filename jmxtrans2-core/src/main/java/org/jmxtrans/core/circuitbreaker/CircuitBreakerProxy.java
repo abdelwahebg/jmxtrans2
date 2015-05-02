@@ -120,12 +120,14 @@ public class CircuitBreakerProxy implements InvocationHandler {
     }
 
     @Nonnull
+    @SuppressWarnings("Unchecked")
     public static <T> T create(
             @Nonnull Clock clock,
             @Nonnull Class<T> proxiedInterface,
             @Nonnull T target,
             int maxFailures,
             int disableDurationMillis) {
+
         return (T) Proxy.newProxyInstance(
                 CircuitBreakerProxy.class.getClassLoader(),
                 new Class[]{proxiedInterface},

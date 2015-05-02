@@ -30,6 +30,8 @@ import org.jmxtrans.core.results.QueryResult;
 
 import org.testng.annotations.Test;
 
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractOutputWriterTest {
@@ -37,7 +39,7 @@ public class AbstractOutputWriterTest {
     @Test
     public void resultsAreDispatched() throws IOException {
         DummyOutputWriter outputWriter = new DummyOutputWriter();
-        QueryResult result = new QueryResult("name", "value", 0);
+        QueryResult result = new QueryResult("name", UNKNOWN, "value", 0);
 
         outputWriter.write(result);
 

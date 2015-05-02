@@ -48,16 +48,7 @@ public class QueryResult {
     @Nonnull @Getter private final String name;
     private final long epochInMillis;
     @Nullable @Getter private final Object value;
-    @Nullable @Getter private final String type;
-
-    /**
-     * @param name          plain name of the metric (variables (e.g. <code>%my-jmx-attr%</code>) must have been resolved).
-     * @param value         value of the collected metric
-     * @param epochInMillis collect time in millis (see {@link System#currentTimeMillis()})
-     */
-    public QueryResult(@Nonnull String name, @Nullable Object value, long epochInMillis) {
-        this(name, null, value, epochInMillis);
-    }
+    @Nonnull @Getter private final MetricType type;
 
     /**
      * @param name          plain name of the metric (variables (e.g. <code>%my-jmx-attr%</code>) must have been resolved).
@@ -65,7 +56,7 @@ public class QueryResult {
      * @param value         value of the collected metric
      * @param epochInMillis collect time in millis (see {@link System#currentTimeMillis()})
      */
-    public QueryResult(@Nonnull String name, @Nullable String type, @Nullable Object value, long epochInMillis) {
+    public QueryResult(@Nonnull String name, @Nonnull MetricType type, @Nullable Object value, long epochInMillis) {
         this.name = Preconditions2.checkNotEmpty(name);
         this.value = value;
         this.epochInMillis = epochInMillis;

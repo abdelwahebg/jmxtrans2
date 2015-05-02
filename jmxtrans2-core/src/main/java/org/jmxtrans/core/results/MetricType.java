@@ -20,36 +20,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jmxtrans.core.query;
+package org.jmxtrans.core.results;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.jmxtrans.utils.time.SystemClock;
-
-import org.testng.annotations.Test;
-
-import static org.jmxtrans.core.results.MetricType.UNKNOWN;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class InvocationTest {
-
-    @Test
-    public void sameInvocationsAreEquals() throws MalformedObjectNameException {
-        Invocation firstInvocation = new Invocation(
-                new ObjectName("java.lang:type=Memory"),
-                "getThreadCpuTime",
-                new Object[] { 1 },
-                new String[] {},
-                "jvm.thread.cpu", UNKNOWN, new SystemClock());
-        Invocation secondInvocation = new Invocation(
-                new ObjectName("java.lang:type=Memory"),
-                "getThreadCpuTime",
-                new Object[] { 1 },
-                new String[] {},
-                "jvm.thread.cpu", UNKNOWN, new SystemClock());
-        assertThat(firstInvocation).isEqualTo(secondInvocation);
-    }
-
+public enum MetricType {
+    GAUGE,
+    TIMER,
+    COUNTER,
+    SUMMARY,
+    UNKNOWN
 }

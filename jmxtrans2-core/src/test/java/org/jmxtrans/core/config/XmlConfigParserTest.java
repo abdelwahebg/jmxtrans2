@@ -47,6 +47,9 @@ import org.xml.sax.SAXException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import static org.jmxtrans.core.results.MetricType.COUNTER;
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlConfigParserTest {
@@ -116,7 +119,11 @@ public class XmlConfigParserTest {
         Iterator<Invocation> invocationIterator = configuration.getInvocations().iterator();
 
         Invocation gc = invocationIterator.next();
-        assertThat(gc).isEqualTo(new Invocation(new ObjectName("java.lang:type=Memory"), "gc", new Object[0], new String[0], "jvm.gc", new SystemClock()));
+        assertThat(gc).isEqualTo(new Invocation(
+                new ObjectName("java.lang:type=Memory"),
+                "gc",
+                new Object[0], new String[0],
+                "jvm.gc", UNKNOWN, new SystemClock()));
 
         Invocation threadCpuTime = invocationIterator.next();
         assertThat(threadCpuTime).isEqualTo(new Invocation(
@@ -124,7 +131,7 @@ public class XmlConfigParserTest {
                 "getThreadCpuTime",
                 new Object[] { "1" },
                 new String[] { "long" },
-                "jvm.thread.cpu", new SystemClock()
+                "jvm.thread.cpu", COUNTER, new SystemClock()
         ));
     }
 

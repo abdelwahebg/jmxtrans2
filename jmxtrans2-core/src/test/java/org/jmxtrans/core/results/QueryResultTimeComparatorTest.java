@@ -24,6 +24,8 @@ package org.jmxtrans.core.results;
 
 import org.testng.annotations.Test;
 
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryResultTimeComparatorTest {
@@ -37,15 +39,15 @@ public class QueryResultTimeComparatorTest {
 
     @Test
     public void nullResultIsSmaller() {
-        QueryResult result = new QueryResult("myResult", 1, 0);
+        QueryResult result = new QueryResult("myResult", UNKNOWN, 1, 0);
         assertThat(comparator.compare(null, result)).isNegative();
         assertThat(comparator.compare(result, null)).isPositive();
     }
 
     @Test
     public void comparisonIsDoneOnTimes() {
-        QueryResult result1 = new QueryResult("myResult", 1, 1);
-        QueryResult result2 = new QueryResult("myResult", 1, 2);
+        QueryResult result1 = new QueryResult("myResult", UNKNOWN, 1, 1);
+        QueryResult result2 = new QueryResult("myResult", UNKNOWN, 1, 2);
         assertThat(comparator.compare(result1, result2)).isNegative();
     }
 

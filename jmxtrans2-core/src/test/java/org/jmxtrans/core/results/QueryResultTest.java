@@ -26,58 +26,61 @@ import org.testng.annotations.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import static org.jmxtrans.core.results.MetricType.COUNTER;
+import static org.jmxtrans.core.results.MetricType.UNKNOWN;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryResultTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateQueryResultWithNullName() {
-        new QueryResult(null, "type", new Object(), 1L);
+        new QueryResult(null, UNKNOWN, new Object(), 1L);
     }
 
     @Test
     public void initializedCorrectly() {
-        QueryResult queryResult = new QueryResult("name", "type", "value", 1L);
+        QueryResult queryResult = new QueryResult("name", UNKNOWN, "value", 1L);
 
         assertThat(queryResult.getName()).isEqualTo("name");
-        assertThat(queryResult.getType()).isEqualTo("type");
+        assertThat(queryResult.getType()).isEqualTo(UNKNOWN);
         assertThat(queryResult.getValue()).isEqualTo("value");
         assertThat(queryResult.getEpoch(MILLISECONDS)).isEqualTo(1L);
     }
 
     @Test
     public void sameValuesAreEquals() {
-        assertThat(new QueryResult("name", "type", "value", 1L))
-                .isEqualTo(new QueryResult("name", "type", "value", 1L));
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L))
+                .isEqualTo(new QueryResult("name", UNKNOWN, "value", 1L));
     }
 
     @Test
     public void differentValuesAreNotEquals() {
-        assertThat(new QueryResult("name", "type", "value", 1L))
-                .isNotEqualTo(new QueryResult("otherName", "type", "value", 1L));
-        assertThat(new QueryResult("name", "type", "value", 1L))
-                .isNotEqualTo(new QueryResult("name", "otherType", "value", 1L));
-        assertThat(new QueryResult("name", "type", "value", 1L))
-                .isNotEqualTo(new QueryResult("name", "type", "otherValue", 1L));
-        assertThat(new QueryResult("name", "type", "value", 1L))
-                .isNotEqualTo(new QueryResult("name", "type", "value", 2L));
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L))
+                .isNotEqualTo(new QueryResult("otherName", UNKNOWN, "value", 1L));
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L))
+                .isNotEqualTo(new QueryResult("name", COUNTER, "value", 1L));
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L))
+                .isNotEqualTo(new QueryResult("name", UNKNOWN, "otherValue", 1L));
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L))
+                .isNotEqualTo(new QueryResult("name", UNKNOWN, "value", 2L));
     }
 
     @Test
     public void sameValuesHaveSameHashCode() {
-        assertThat(new QueryResult("name", "type", "value", 1L).hashCode())
-                .isEqualTo(new QueryResult("name", "type", "value", 1L).hashCode());
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L).hashCode())
+                .isEqualTo(new QueryResult("name", UNKNOWN, "value", 1L).hashCode());
     }
 
     @Test
     public void differentValuesHaveDifferentHashCodes() {
-        assertThat(new QueryResult("name", "type", "value", 1L).hashCode())
-                .isNotEqualTo(new QueryResult("otherName", "type", "value", 1L).hashCode());
-        assertThat(new QueryResult("name", "type", "value", 1L).hashCode())
-                .isNotEqualTo(new QueryResult("name", "otherType", "value", 1L).hashCode());
-        assertThat(new QueryResult("name", "type", "value", 1L).hashCode())
-                .isNotEqualTo(new QueryResult("name", "type", "otherValue", 1L).hashCode());
-        assertThat(new QueryResult("name", "type", "value", 1L).hashCode())
-                .isNotEqualTo(new QueryResult("name", "type", "value", 2L).hashCode());
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L).hashCode())
+                .isNotEqualTo(new QueryResult("otherName", UNKNOWN, "value", 1L).hashCode());
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L).hashCode())
+                .isNotEqualTo(new QueryResult("name", COUNTER, "value", 1L).hashCode());
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L).hashCode())
+                .isNotEqualTo(new QueryResult("name", UNKNOWN, "otherValue", 1L).hashCode());
+        assertThat(new QueryResult("name", UNKNOWN, "value", 1L).hashCode())
+                .isNotEqualTo(new QueryResult("name", UNKNOWN, "value", 2L).hashCode());
     }
 }
