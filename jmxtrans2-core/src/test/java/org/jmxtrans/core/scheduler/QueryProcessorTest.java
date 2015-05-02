@@ -44,7 +44,6 @@ import org.testng.annotations.Test;
 
 import static java.util.Collections.singleton;
 
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +54,7 @@ public class QueryProcessorTest {
     private ManualClock clock = new ManualClock();
     @Mock private MBeanServer mBeanServer;
     @Mock private OutputWriter outputWriter;
-    private Executor queryExecutor = directExecutor();
+    private Executor queryExecutor = new DirectExecutor();
     @Mock private ResultProcessor resultProcessor;
     @Mock private Query query;
     @Mock private QueryResult result;
