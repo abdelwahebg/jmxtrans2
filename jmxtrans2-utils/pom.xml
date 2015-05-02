@@ -30,13 +30,11 @@
         <artifactId>jmxtrans2</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>jmxtrans2-utils</artifactId>
     <name>JMXTrans - utils</name>
     <description>Utilities which have no direct connections with JmxTrans. All classes found in this module could potentially be
         reused by other projects. Some duplicate functionality already found in standard libraries like Guava, but as we
         want to keep external dependencies to a bare minimum, we have to reimplement them.</description>
-
     <properties>
         <verify.packageBranchRate>0.25</verify.packageBranchRate>
     </properties>
@@ -52,7 +50,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -70,5 +67,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

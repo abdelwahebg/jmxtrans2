@@ -24,6 +24,7 @@ package org.jmxtrans.utils.time;
 
 import org.testng.annotations.Test;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -65,4 +66,14 @@ public class IntervalTest {
         assertThat(new Interval(1, SECONDS)).isNotEqualTo("");
     }
 
+    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = ".*timeUnit.*")
+    public void timeUnitIsRequired() {
+        new Interval(1, null);
+    }
+
+    @Test
+    public void timeUnitIsConverted() {
+        Interval interval = new Interval(1, SECONDS);
+        assertThat(interval.getDuration(MILLISECONDS)).isEqualTo(1000);
+    }
 }

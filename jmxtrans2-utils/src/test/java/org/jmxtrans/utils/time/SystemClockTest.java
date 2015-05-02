@@ -22,36 +22,25 @@
  */
 package org.jmxtrans.utils.time;
 
-import java.util.concurrent.TimeUnit;
+import org.testng.annotations.Test;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+public class SystemClockTest {
 
-import static java.util.Objects.requireNonNull;
+    private SystemClock clock = new SystemClock();
 
-@Immutable
-@ThreadSafe
-@EqualsAndHashCode
-@ToString
-public class Interval {
-
-    @Getter private final int value;
-
-    @Nonnull @Getter
-    private final TimeUnit timeUnit;
-
-    public Interval(int value, @Nonnull TimeUnit timeUnit) {
-        this.value = value;
-        this.timeUnit = requireNonNull(timeUnit, "timeUnit cannot be null");
+    @Test
+    public void currentTimeIsCorrect() {
+        long now = System.currentTimeMillis();
+        long delta = 100;
+        assertThat(clock.currentTimeMillis()).isBetween(now - delta, now + delta);
     }
 
-    public long getDuration(TimeUnit timeUnit) {
-        return timeUnit.convert(value, this.timeUnit);
+    @Test
+    public void nanoTimeIsCorrect() {
+        long now = System.nanoTime();
+        long delta = 10000;
+        assertThat(clock.nanoTime()).isBetween(now - delta, now + delta);
     }
-
 }

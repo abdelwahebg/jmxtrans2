@@ -30,19 +30,16 @@
         <artifactId>jmxtrans2</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>jmxtrans2-core</artifactId>
     <name>JMXTrans - core</name>
     <description>Core functionality of JmxTrans is found here. Integration with specific runtime environment is kept outside this
         module (agent, spring, standalone, ...), but if you just want some code to help you easily query JMX beans, this
         is what you need.</description>
-
     <properties>
         <verify.classLineRate>0.40</verify.classLineRate>
         <verify.mutation.threshold>56</verify.mutation.threshold>
         <verify.packageBranchRate>0.39</verify.packageBranchRate>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.jmxtrans.jmxtrans2</groupId>
@@ -85,7 +82,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -127,5 +123,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

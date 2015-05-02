@@ -146,14 +146,4 @@ public final class StringUtils2 {
             }
         }
     }
-
-    /**
-     * Escape all non {@code a->z,A->Z, 0->9} and {@code '-'} with a {@code '_'}.
-     *
-     * @param str    the string to escape
-     * @param result the {@linkplain StringBuilder} in which the escaped string is appended
-     */
-    public static void appendEscapedNonAlphaNumericChars(@Nonnull String str, @Nonnull StringBuilder result) {
-        appendEscapedNonAlphaNumericChars(str, true, result);
-    }
 }
