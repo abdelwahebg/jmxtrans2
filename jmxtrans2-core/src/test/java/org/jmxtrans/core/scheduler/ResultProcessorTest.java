@@ -37,7 +37,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -46,7 +45,7 @@ import static org.mockito.Mockito.verify;
 public class ResultProcessorTest {
 
     private final ManualClock clock = new ManualClock();
-    private final Executor resultExecutor = directExecutor();
+    private final Executor resultExecutor = new DirectExecutor();
     private ResultProcessor resultProcessor;
     private final QueryResult result = new QueryResult("name", new Object(), 0);
     private final BlockingQueue<QueryResult> results = new ArrayBlockingQueue<>(1);
