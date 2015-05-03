@@ -50,7 +50,7 @@ Project is MIT licensed. License header should be included in all files. This is
 
 ## Maven pom should be sorted
 
-Maven `pom.xml` should be sorted according to Maven recommendations. This is checked by the [maven-sortpom-plugin](http://code.google.com/p/sortpom/). To sort the poms, just run `mvn sortpom:sort`. Again, this helps in code review / merges by ensuring that order of elements in pom are stable and not reorganized in arbitrary ways.
+Maven `pom.xml` should be sorted according to Maven recommendations. This is checked by the [maven-sortpom-plugin](https://github.com/Ekryd/sortpom). To sort the poms, just run `mvn sortpom:sort`. Again, this helps in code review / merges by ensuring that order of elements in pom are stable and not reorganized in arbitrary ways.
 
 ## Cleanup your commits
 

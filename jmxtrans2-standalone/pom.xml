@@ -30,11 +30,9 @@
         <artifactId>jmxtrans2</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>jmxtrans2-standalone</artifactId>
     <name>JMXTrans - standalone</name>
     <description>JMX metrics exporter</description>
-
     <properties>
         <jsw.dir>${project.build.directory}/generated-resources/appassembler/jsw/${package.daemon.name}</jsw.dir>
         <main.class>org.jmxtrans.standalone.JmxTransformer</main.class>
@@ -49,7 +47,6 @@
         <verify.packageBranchRate>0.0</verify.packageBranchRate>
         <verify.packageLineRate>0.0</verify.packageLineRate>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.beust</groupId>
@@ -76,7 +73,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <testResources>
             <testResource>
@@ -234,7 +230,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <!--
@@ -361,5 +356,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
