@@ -23,14 +23,13 @@
 package org.jmxtrans.core.output.support;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
 import org.jmxtrans.core.results.QueryResult;
 
-public interface WriterBasedOutputWriter {
+public interface AppenderBasedOutputWriter {
     @CheckReturnValue
-    int write(@Nonnull Writer writer, @Nonnull QueryResult result) throws IOException;
+    int write(@Nonnull Appendable writer, @Nonnull QueryResult result) throws IOException;
 }

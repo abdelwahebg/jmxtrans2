@@ -20,37 +20,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jmxtrans.core.output;
+package org.jmxtrans.core.output.support.pool;
 
-import java.io.IOException;
-import java.util.Map;
+import stormpot.Expiration;
+import stormpot.Poolable;
+import stormpot.SlotInfo;
 
-import org.jmxtrans.core.results.MetricType;
-import org.jmxtrans.core.results.QueryResult;
+public class CompoundExpiration<T extends Poolable> implements Expiration<T> {
 
-import org.testng.annotations.Test;
+    private final Expiration<T> firstExpiration;
+    private final Expiration<T> secondExpiration;
 
-import static java.util.Collections.emptyMap;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class DevNullOutputWriterTest {
-
-    @Test
-    public void writingResultsDoesNothing() throws IOException, InterruptedException {
-        OutputWriter outputWriter = new DevNullOutputWriter();
-        QueryResult result = new QueryResult("name", MetricType.UNKNOWN, "value", 0);
-
-        int processedMetricCount = outputWriter.write(result);
-        assertThat(processedMetricCount).isZero();
+    public CompoundExpiration(Expiration<T> firstExpiration, Expiration<T> secondExpiration) {
+        this.firstExpiration = firstExpiration;
+        this.secondExpiration = secondExpiration;
     }
 
-    @Test
-    public void factoryCanCreateOutputWriter() {
-        Map<String, String> settings = emptyMap();
-        OutputWriter outputWriter = new DevNullOutputWriter.Factory().create(settings);
-
-        assertThat(outputWriter).isNotNull();
+    @Override
+    public boolean hasExpired(SlotInfo<? extends T> slotInfo) throws Exception {
+        return firstExpiration.hasExpired(slotInfo)
+                || secondExpiration.hasExpired(slotInfo);
     }
-
 }

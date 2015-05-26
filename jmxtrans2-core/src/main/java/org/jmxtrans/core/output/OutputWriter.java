@@ -37,6 +37,6 @@ public interface OutputWriter {
      * @return the number of results actually processed
      */
     @CheckReturnValue
-    int write(@Nonnull QueryResult result) throws IOException;
+    int write(@Nonnull QueryResult result) throws IOException, InterruptedException;
 
 }

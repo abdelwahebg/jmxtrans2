@@ -60,14 +60,14 @@ public class MetricCollectingOutputWriterTest {
     }
     
     @Test
-    public void processedResultCountIsIncremented() throws IOException {
+    public void processedResultCountIsIncremented() throws IOException, InterruptedException {
         when(outputWriter.write(result)).thenReturn(1);
         metricCollectingOutputWriter.write(result);
         assertThat(metricCollectingOutputWriter.getProcessedResultsCount()).isEqualTo(1);
     }
     
     @Test
-    public void processingTimeIsCounted() throws IOException {
+    public void processingTimeIsCounted() throws IOException, InterruptedException {
         when(outputWriter.write(result)).then(new Answer<Integer>() {
             @Override
             public Integer answer(InvocationOnMock invocation) throws Throwable {
@@ -82,7 +82,7 @@ public class MetricCollectingOutputWriterTest {
     }
     
     @Test(expectedExceptions = IOException.class)
-    public void processingTimeIsCountedAlsoWhenExceptionIsThrown() throws IOException {
+    public void processingTimeIsCountedAlsoWhenExceptionIsThrown() throws IOException, InterruptedException {
         when(outputWriter.write(result)).then(new Answer<Integer>() {
             @Override
             public Integer answer(InvocationOnMock invocation) throws Throwable {

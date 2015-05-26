@@ -126,6 +126,12 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>stormpot</pattern>
+                                    <shadedPattern>org.jmxtrans.shaded.stormpot</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>all</shadedClassifierName>
                             <transformers>

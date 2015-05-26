@@ -34,7 +34,7 @@ import org.jmxtrans.core.results.QueryResult;
 public class DummyOutputWriter implements OutputWriter {
 
     @Override
-    public int write(QueryResult result) throws IOException {
+    public int write(@Nonnull QueryResult result) throws IOException {
         return 0;
     }
 

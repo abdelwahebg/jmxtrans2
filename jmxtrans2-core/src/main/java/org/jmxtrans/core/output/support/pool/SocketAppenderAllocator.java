@@ -20,34 +20,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jmxtrans.core.output.writers;
+package org.jmxtrans.core.output.support.pool;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
 
-import org.jmxtrans.core.output.OutputWriter;
-import org.jmxtrans.core.output.support.AppenderBasedOutputWriter;
-import org.jmxtrans.core.results.QueryResult;
+import stormpot.Allocator;
+import stormpot.Slot;
 
-@ThreadSafe
-public class ConsoleOutputWriter implements OutputWriter {
 
-    @Nonnull private final AppenderBasedOutputWriter delegate;
-    @Nonnull private Writer writer;
+public class SocketAppenderAllocator implements Allocator<PoolableSocketAppender> {
 
-    public ConsoleOutputWriter(@Nonnull AppenderBasedOutputWriter delegate, Writer writer) {
-        this.delegate = delegate;
-        this.writer = writer;
+    @Nonnull private final InetSocketAddress address;
+    private final int socketTimeoutMillis;
+    private final Charset charset;
+
+    public SocketAppenderAllocator(@Nonnull InetSocketAddress address, int socketTimeoutMillis, Charset charset) {
+        this.address = address;
+        this.socketTimeoutMillis = socketTimeoutMillis;
+        this.charset = charset;
     }
 
     @Override
-    public int write(@Nonnull QueryResult result) throws IOException {
-        int resultsWritten = delegate.write(writer, result);
-        writer.flush();
-        return resultsWritten;
+    @Nonnull
+    public PoolableSocketAppender allocate(@Nonnull Slot slot) throws Exception {
+        // re create a Socket to ensure DNS resolution is done each time
+        SocketAddress serverAddress = new InetSocketAddress(address.getHostName(), address.getPort());
+        return new PoolableSocketAppender(slot, charset, serverAddress, socketTimeoutMillis);
     }
 
+    @Override
+    public void deallocate(@Nonnull PoolableSocketAppender poolableSocketAppender) throws Exception {
+        poolableSocketAppender.close();
+    }
 }
