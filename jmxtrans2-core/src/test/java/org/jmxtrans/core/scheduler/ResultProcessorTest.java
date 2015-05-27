@@ -61,13 +61,13 @@ public class ResultProcessorTest {
     }
 
     @Test
-    public void resultsAreProcessed() throws IOException {
+    public void resultsAreProcessed() throws IOException, InterruptedException {
         resultProcessor.writeResult(1, result, outputWriter);
         verify(outputWriter).write(result);
     }
 
     @Test
-    public void exceptionsFromWriterAreManaged() throws IOException {
+    public void exceptionsFromWriterAreManaged() throws IOException, InterruptedException {
         doThrow(new IOException()).when(outputWriter).write(any(QueryResult.class));
         ResultProcessor.Processor processor = new ResultProcessor.Processor(clock, 10, result, outputWriter);
         processor.run();

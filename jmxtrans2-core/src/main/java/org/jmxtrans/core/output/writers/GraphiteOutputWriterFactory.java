@@ -28,31 +28,42 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import org.jmxtrans.core.output.OutputWriterFactory;
-import org.jmxtrans.core.output.support.BatchingOutputWriter;
 import org.jmxtrans.core.output.support.TcpOutputWriter;
+import org.jmxtrans.core.output.support.pool.CompoundExpiration;
+import org.jmxtrans.core.output.support.pool.JmxTransTimeSpreadExpiration;
+import org.jmxtrans.core.output.support.pool.PoolableSocketAppender;
+import org.jmxtrans.core.output.support.pool.SocketAppenderAllocator;
+import org.jmxtrans.core.output.support.pool.SocketAppenderValidator;
+
+import stormpot.BlazePool;
+import stormpot.Config;
+import stormpot.Pool;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 import static org.jmxtrans.utils.ConfigurationUtils.getInt;
 import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
-public class GraphiteOutputWriterFactory implements OutputWriterFactory<BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>>> {
+public class GraphiteOutputWriterFactory implements OutputWriterFactory<TcpOutputWriter<GraphiteOutputWriter>> {
     @Nonnull
     @Override
-    public BatchingOutputWriter<TcpOutputWriter<GraphiteOutputWriter>> create(@Nonnull Map<String, String> settings) {
+    public TcpOutputWriter<GraphiteOutputWriter> create(@Nonnull Map<String, String> settings) {
 
         String hostname = settings.get("hostname");
         int port = getInt(settings, "port");
         int socketTimeoutMillis = getInt(settings, "socketTimeoutMillis", 2000);
-        int batchSize = getInt(settings, "batchSize", 100);
 
         InetSocketAddress server = new InetSocketAddress(hostname, port);
 
-        return new BatchingOutputWriter<>(
-                batchSize,
-                new TcpOutputWriter<>(
-                        server,
-                        socketTimeoutMillis,
-                        UTF_8,
-                        new GraphiteOutputWriter())
-        );
+        SocketAppenderAllocator socketAppenderAllocator = new SocketAppenderAllocator(server, socketTimeoutMillis, UTF_8);
+        Config<PoolableSocketAppender> poolConfig = new Config<>()
+                .setAllocator(socketAppenderAllocator)
+                .setExpiration(new CompoundExpiration<>(
+                        new JmxTransTimeSpreadExpiration<PoolableSocketAppender>(15, 60, MINUTES),
+                        new SocketAppenderValidator()
+                ));
+        Pool<PoolableSocketAppender> socketPool = new BlazePool<>(poolConfig);
+
+        return new TcpOutputWriter<>(new GraphiteOutputWriter(), socketPool);
     }
 }

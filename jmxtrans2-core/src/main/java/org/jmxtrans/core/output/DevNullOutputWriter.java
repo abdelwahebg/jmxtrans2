@@ -36,14 +36,14 @@ import org.jmxtrans.core.results.QueryResult;
 public class DevNullOutputWriter implements OutputWriter {
 
     @Override
-    public int write(QueryResult result) throws IOException {
+    public int write(@Nonnull QueryResult result) throws IOException {
         return 0;
     }
 
     public static final class Factory implements OutputWriterFactory<DevNullOutputWriter> {
         @Nonnull
         @Override
-        public DevNullOutputWriter create(Map<String, String> settings) {
+        public DevNullOutputWriter create(@Nonnull Map<String, String> settings) {
             return new DevNullOutputWriter();
         }
     }

@@ -50,15 +50,15 @@ public class BatchingOutputWriterTest {
     @Mock private QueryResult result;
 
     @BeforeMethod
-    public void setupBatchedOutputWriter() throws IOException {
+    public void setupBatchedOutputWriter() throws IOException, InterruptedException {
         when(targetOutputWriter.write(any(QueryResult.class)))
                 .thenReturn(1);
     }
     
     @Test
-    public void resultsAreNotWrittenWhenBatchSizeIsNotReached() throws IOException {
-        int processedResultCount = 0;
-        OutputWriter batchingOutputWriter = new BatchingOutputWriter(2, targetOutputWriter);
+    public void resultsAreNotWrittenWhenBatchSizeIsNotReached() throws IOException, InterruptedException {
+        int processedResultCount;
+        OutputWriter batchingOutputWriter = new BatchingOutputWriter<>(2, targetOutputWriter);
         
         processedResultCount = batchingOutputWriter.write(result);
         
@@ -73,9 +73,9 @@ public class BatchingOutputWriterTest {
     }
 
     @Test
-    public void resultsAreBatchedAtAppropriateSize() throws IOException {
-        int processedResultCount = 0;
-        OutputWriter batchingOutputWriter = new BatchingOutputWriter(2, targetOutputWriter);
+    public void resultsAreBatchedAtAppropriateSize() throws IOException, InterruptedException {
+        int processedResultCount;
+        OutputWriter batchingOutputWriter = new BatchingOutputWriter<>(2, targetOutputWriter);
         batchingOutputWriter.write(result);
         batchingOutputWriter.write(result);
         processedResultCount = batchingOutputWriter.write(result); // results are batched when the next result is received
@@ -84,9 +84,9 @@ public class BatchingOutputWriterTest {
     }
 
     @Test
-    public void beforeAndAfterBatchAreCalledInOrder() throws IOException {
+    public void beforeAndAfterBatchAreCalledInOrder() throws IOException, InterruptedException {
         InOrder inOrder = inOrder(targetOutputWriter);
-        OutputWriter batchingOutputWriter = new BatchingOutputWriter(1, targetOutputWriter);
+        OutputWriter batchingOutputWriter = new BatchingOutputWriter<>(1, targetOutputWriter);
         batchingOutputWriter.write(result);
         batchingOutputWriter.write(result);
         inOrder.verify(targetOutputWriter).beforeBatch();
@@ -95,7 +95,7 @@ public class BatchingOutputWriterTest {
     }
 
     @Test
-    public void resultsAreProcessedInOrder() throws IOException {
+    public void resultsAreProcessedInOrder() throws IOException, InterruptedException {
         InOrder inOrder = inOrder(targetOutputWriter);
 
         QueryResult result1 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 1);
@@ -104,7 +104,7 @@ public class BatchingOutputWriterTest {
         QueryResult result4 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 4);
         QueryResult result5 = new QueryResult("my.result", MetricType.UNKNOWN, 1, 5);
 
-        OutputWriter batchingOutputWriter = new BatchingOutputWriter(4, targetOutputWriter);
+        OutputWriter batchingOutputWriter = new BatchingOutputWriter<>(4, targetOutputWriter);
         batchingOutputWriter.write(result4);
         batchingOutputWriter.write(result5);
         batchingOutputWriter.write(result1);

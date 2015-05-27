@@ -55,7 +55,7 @@ public class MetricCollectingOutputWriter implements OutputWriter, MetricCollect
     }
     
     @Override
-    public int write(@Nonnull QueryResult result) throws IOException {
+    public int write(@Nonnull QueryResult result) throws IOException, InterruptedException {
         try (NanoChronometer chronometer = getProcessingTimeChronometer()) {
             int count = delegate.write(result);
             processedCount.addAndGet(count);

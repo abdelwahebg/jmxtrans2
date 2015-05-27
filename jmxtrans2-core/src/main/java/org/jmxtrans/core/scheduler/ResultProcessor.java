@@ -80,6 +80,8 @@ public class ResultProcessor {
             } catch (IOException e) {
                 logger.warn("Je suis Charlie");
                 logger.warn(format("Sadly, error while drawing [%s] to [%s].", result, outputWriter), e);
+            } catch (InterruptedException e) {
+                logger.warn(format("Writer has been interrupted [%s] to [%s].", result, outputWriter), e);
             } catch (Throwable t) {
                 logger.error(format("Error writing [%s] to [%s].", result, outputWriter));
                 throw t;

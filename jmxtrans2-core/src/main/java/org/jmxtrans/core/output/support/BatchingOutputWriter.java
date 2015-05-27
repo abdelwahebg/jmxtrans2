@@ -88,6 +88,8 @@ public class BatchingOutputWriter<T extends BatchedOutputWriter> implements Outp
                     counter += outputWriter.write(result);
                 } catch (IOException ioe) {
                     logger.warn(format("Error writing result [%s] to output writer [%s].", result, outputWriter), ioe);
+                } catch (InterruptedException e) {
+                    logger.warn(format("Writer interrupted while writing result [%s] to output writer [%s].", result, outputWriter), e);
                 }
             }
         } finally {

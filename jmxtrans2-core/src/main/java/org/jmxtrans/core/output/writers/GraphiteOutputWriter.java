@@ -23,7 +23,6 @@
 package org.jmxtrans.core.output.writers;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -32,14 +31,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.jmxtrans.core.output.support.WriterBasedOutputWriter;
+import org.jmxtrans.core.output.support.AppenderBasedOutputWriter;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.VisibleForTesting;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @ThreadSafe
-public class GraphiteOutputWriter implements WriterBasedOutputWriter {
+public class GraphiteOutputWriter implements AppenderBasedOutputWriter {
 
     @Nullable private volatile String metricPathPrefix;
 
@@ -47,13 +46,13 @@ public class GraphiteOutputWriter implements WriterBasedOutputWriter {
     GraphiteOutputWriter() {}
 
     @Override
-    public int write(@Nonnull Writer writer, @Nonnull QueryResult result) throws IOException {
-        writer.write(buildMetricPathPrefix());
-        writer.write(result.getName());
-        writer.write(" ");
-        writer.write(Objects.toString(result.getValue()));
-        writer.write(" ");
-        writer.write(Long.toString(result.getEpoch(SECONDS)));
+    public int write(@Nonnull Appendable writer, @Nonnull QueryResult result) throws IOException {
+        writer.append(buildMetricPathPrefix());
+        writer.append(result.getName());
+        writer.append(" ");
+        writer.append(Objects.toString(result.getValue()));
+        writer.append(" ");
+        writer.append(Long.toString(result.getEpoch(SECONDS)));
         return 1;
     }
 
@@ -62,10 +61,11 @@ public class GraphiteOutputWriter implements WriterBasedOutputWriter {
     private String buildMetricPathPrefix() {
         // {@link java.net.InetAddress#getLocalHost()} may not be known at JVM startup when the process is launched as a Linux service.
         // FIXME: there is a 5 second cache on localhost name, it probably make sense to reload it periodically. Hostname can change.
-        if (metricPathPrefix != null) return metricPathPrefix;
+        String result = metricPathPrefix;
+        if (result != null) return result;
 
-        metricPathPrefix = "servers." + getHostname() + ".";
-        return metricPathPrefix;
+        metricPathPrefix = result = "servers." + getHostname() + ".";
+        return result;
     }
 
     @Nonnull

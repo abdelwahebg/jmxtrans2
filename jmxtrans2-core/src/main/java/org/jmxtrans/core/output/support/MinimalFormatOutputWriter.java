@@ -23,7 +23,6 @@
 package org.jmxtrans.core.output.support;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -34,16 +33,16 @@ import org.jmxtrans.core.results.QueryResult;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @ThreadSafe
-public class MinimalFormatOutputWriter implements WriterBasedOutputWriter {
+public class MinimalFormatOutputWriter implements AppenderBasedOutputWriter {
     @Override
-    public int write(@Nonnull Writer writer, @Nonnull QueryResult result) throws IOException {
-        writer.write(result.getName());
-        writer.write(" ");
-        writer.write(Objects.toString(result.getValue()));
-        writer.write(" ");
-        writer.write(Long.toString(result.getEpoch(MILLISECONDS)));
-        writer.write("\n"); // Let's be platform agnostic and make sure we output the same format all the time by not
-                            // using System.lineSeparator()
+    public int write(@Nonnull Appendable writer, @Nonnull QueryResult result) throws IOException {
+        writer.append(result.getName());
+        writer.append(" ");
+        writer.append(Objects.toString(result.getValue()));
+        writer.append(" ");
+        writer.append(Long.toString(result.getEpoch(MILLISECONDS)));
+        writer.append("\n"); // Let's be platform agnostic and make sure we output the same format all the time by not
+                             // using System.lineSeparator()
         return 1;
     }
 }

@@ -62,7 +62,7 @@ public class HttpOutputWriterTest {
     @Mock private OutputStreamBasedOutputWriter target;
     @Mock private QueryResult result;
 
-    @BeforeMethod
+    @BeforeClass
     public void initializeAppInfo() throws IOException {
         appInfo = AppInfo.load(AppInfo.class);
     }

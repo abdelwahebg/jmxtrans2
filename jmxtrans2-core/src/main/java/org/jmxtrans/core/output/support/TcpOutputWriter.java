@@ -22,19 +22,19 @@
  */
 package org.jmxtrans.core.output.support;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.jmxtrans.core.output.OutputWriter;
+import org.jmxtrans.core.output.support.pool.PoolableSocketAppender;
 import org.jmxtrans.core.results.QueryResult;
+
+import stormpot.Pool;
+import stormpot.Timeout;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Provide base functionality to write a TCP based OutputWriter.
@@ -52,86 +52,26 @@ import org.jmxtrans.core.results.QueryResult;
  * connections instead.
  */
 @ThreadSafe
-public class TcpOutputWriter<T extends WriterBasedOutputWriter> implements BatchedOutputWriter {
+public class TcpOutputWriter<T extends AppenderBasedOutputWriter> implements OutputWriter{
 
-    @Nonnull private final ThreadLocal<BufferedWriter> threadLocalWriter = new ThreadLocal<>();
-    @Nonnull private final ThreadLocal<Socket> threadLocalSocket = new ThreadLocal<>();
-    @Nonnull private final InetSocketAddress server;
-    @Nonnull private final Charset charset;
-    private final int socketTimeoutMillis;
+    public static final Timeout CLAIM_TIMEOUT = new Timeout(10, MILLISECONDS);
     @Nonnull private final T target;
+    @Nonnull private final Pool<PoolableSocketAppender> socketPool;
 
     public TcpOutputWriter(
-            @Nonnull InetSocketAddress server,
-            int socketTimeoutMillis,
-            @Nonnull Charset charset,
-            @Nonnull T target) {
-        this.server = server;
-        this.charset = charset;
-        this.socketTimeoutMillis = socketTimeoutMillis;
+            @Nonnull T target,
+            @Nonnull Pool<PoolableSocketAppender> socketPool) {
+        this.socketPool = socketPool;
         this.target = target;
     }
 
     @Override
-    public void beforeBatch() {}
-
-    @Override
-    public int write(@Nonnull QueryResult result) throws IOException {
-        return target.write(getWriter(), result);
-    }
-
-    @Nonnull
-    protected Writer getWriter() throws IOException {
-        ensureConnected();
-        Writer writer = threadLocalWriter.get();
-        if (writer == null) {
-            throw new IllegalStateException("Writer has not been initialized");
-        }
-        return writer;
-    }
-
-    private void ensureConnected() throws IOException {
-        if (!connectionHealthy()) {
-            releaseSocket();
-            connectToServer();
-        }
-    }
-
-    private boolean connectionHealthy() {
+    public int write(@Nonnull QueryResult result) throws IOException, InterruptedException {
+        PoolableSocketAppender poolableSocketAppender = socketPool.claim(CLAIM_TIMEOUT);
         try {
-            Socket socket = threadLocalSocket.get();
-            return socket != null
-                    && socket.isConnected()
-                    && socket.isBound()
-                    && !socket.isClosed()
-                    && !socket.isInputShutdown()
-                    && !socket.isOutputShutdown();
-        } catch (Exception e) {
-            return false;
+            return target.write(poolableSocketAppender, result);
+        } finally {
+            if (poolableSocketAppender != null) poolableSocketAppender.release();
         }
-    }
-
-    @Nonnull
-    private void connectToServer() throws IOException {
-        // create new InetSocketAddress to ensure name resolution is done again
-        SocketAddress serverAddress = new InetSocketAddress(server.getHostName(), server.getPort());
-        Socket socket = new Socket();
-        socket.setKeepAlive(false);
-        socket.connect(serverAddress, socketTimeoutMillis);
-        threadLocalWriter.set(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), charset)));
-    }
-
-    private void releaseSocket() throws IOException {
-        try (Socket socket = threadLocalSocket.get();
-             BufferedWriter writer = threadLocalWriter.get()) {
-            threadLocalWriter.remove();
-            threadLocalSocket.remove();
-        }
-    }
-
-    @Override
-    public int afterBatch() throws IOException {
-        releaseSocket();
-        return 0;
     }
 }

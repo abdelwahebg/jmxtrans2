@@ -23,11 +23,11 @@
 package org.jmxtrans.core.output.support;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
+import org.jmxtrans.core.output.support.pool.*;
 import org.jmxtrans.core.results.QueryResult;
 import org.jmxtrans.utils.mockito.MockitoTestNGListener;
 
@@ -36,7 +36,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import stormpot.BlazePool;
+import stormpot.Config;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jmxtrans.utils.io.Charsets.UTF_8;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -57,18 +60,27 @@ public class TcpOutputWriterTest {
 
     @Test
     public void test() throws IOException, InterruptedException {
-        TcpOutputWriter tcpOutputWriter = new TcpOutputWriter(
-                server.getLocalSocketAddress(),
-                100,
-                charset,
-                new DummyWriter()
-        );
-        tcpOutputWriter.beforeBatch();
+        BlazePool<PoolableSocketAppender> socketPool = createSocketPool();
+
+        TcpOutputWriter<DummyWriter> tcpOutputWriter = new TcpOutputWriter<>(new DummyWriter(), socketPool);
         int processedResultCount = tcpOutputWriter.write(result);
-        tcpOutputWriter.afterBatch();
+
+        socketPool.shutdown();
 
         assertThat(processedResultCount).isEqualTo(1);
         await().until(server.hasReceived("test"));
+    }
+
+    private BlazePool<PoolableSocketAppender> createSocketPool() {
+        return new BlazePool<>(
+                new Config<>()
+                        .setAllocator(
+                                new SocketAppenderAllocator(server.getLocalSocketAddress(), 100, UTF_8))
+                        .setExpiration(
+                                new CompoundExpiration<>(
+                                        new JmxTransTimeSpreadExpiration<PoolableSocketAppender>(15, 60, MINUTES),
+                                        new SocketAppenderValidator()))
+                        .setSize(1));
     }
 
     @AfterMethod
@@ -76,10 +88,10 @@ public class TcpOutputWriterTest {
         server.stop();
     }
 
-    private class DummyWriter implements WriterBasedOutputWriter {
+    private class DummyWriter implements AppenderBasedOutputWriter {
         @Override
-        public int write(@Nonnull Writer writer, @Nonnull QueryResult result) throws IOException {
-            writer.write("test");
+        public int write(@Nonnull Appendable writer, @Nonnull QueryResult result) throws IOException {
+            writer.append("test");
             return 1;
         }
     }
